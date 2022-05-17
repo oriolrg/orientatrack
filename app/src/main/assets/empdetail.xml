@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx creator="Wikiloc - https://www.wikiloc.com" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+    <metadata>
+        <name>Wikiloc - TDL 22 - STAGE 2 PEPIN</name>
+        <link href="https://www.wikiloc.com/cycling-trails/tdl-22-stage-2-pepin-98166362">
+            <text>TDL 22 - STAGE 2 PEPIN on Wikiloc</text>
+        </link>
+        <time>2022-04-28T08:59:05Z</time>
+    </metadata>
+    <trk>
+        <name>TDL 22 - STAGE 2 PEPIN</name>
+        <cmt></cmt>
+        <desc></desc>
+        <trkseg>
+            <trkpt lat="42.135960" lon="1.592090">
+                <ele>915.085</ele>
+                <time>2022-04-28T08:59:05Z</time>
+            </trkpt>
+            <trkpt lat="42.135780" lon="1.592430">
+                <ele>915.489</ele>
+                <time>2022-04-28T08:59:25Z</time>
+            </trkpt>
+        </trkseg>
+    </trk></gpx>
