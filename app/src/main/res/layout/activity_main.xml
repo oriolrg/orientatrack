@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/latActual"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></TextView>
+
+    <TextView
+        android:id="@+id/lonActual"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></TextView>
+    <TextView
+        android:id="@+id/distanciaRecorreguda"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></TextView>
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
