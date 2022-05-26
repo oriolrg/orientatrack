@@ -18,8 +18,10 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.xml.sax.SAXException
 import java.io.IOException
+import java.text.DecimalFormat
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
     private var trkDataHashMap = HashMap< String, String>()
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private val RANG_ERROR_DISTANCIA = 8.0
     //Si la ruta esta finalitzata = true
     private var ESTAT_RUTA = false
+    val df = DecimalFormat("#.##")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -71,10 +74,10 @@ class MainActivity : AppCompatActivity() {
                 Log.d("debug", it.toString())
                 desti.lat = it["lat"]!!.toDouble()
                 desti.lon = it["lon"]!!.toDouble()
-                val distanciaX = findViewById<TextView>(R.id.distanciaX)
-                val distanciaY = findViewById<TextView>(R.id.distanciaY)
-                distanciaX.text = desti.lat.toString()
-                distanciaY.text = desti.lon.toString()
+                //val distanciaX = findViewById<TextView>(R.id.distanciaX)
+                //val distanciaY = findViewById<TextView>(R.id.distanciaY)
+                //distanciaX.text = desti.lat.toString()
+                //distanciaY.text = desti.lon.toString()
                 return true
             }
 
@@ -131,16 +134,16 @@ class MainActivity : AppCompatActivity() {
                         if (!ESTAT_RUTA){
                             var localitzacio = LocalitzacioData.Point(location.latitude,location.longitude)
                             val distanciaTxt = findViewById<TextView>(R.id.DistanciaTxt)
-                            var missatgeText = "Les teves cordenades son: \n Latitud:" + location.latitude + "; Longitud:" + location.longitude + "; Altitud:" + location.altitude
+                            var missatgeText = "Latitud:" + location.latitude + "\n Longitud:" + location.longitude + "\n Altitud:" + location.altitude
                             LocalitzacioTxt.text = missatgeText
                             var distanciaPunt = calcularDistanciaEntreCoordenades(localitzacio, desti)
                             //Todo si distancia es menor a x seguent punt
                             comprovarDistancia(distanciaPunt)
                             var anglePunt = calcularAngle(localitzacio, desti)
                             val locationTipus = findViewById<TextView>(R.id.locationTipus)
-                            missatgeText = anglePunt.toString()+"º"
+                            missatgeText = anglePunt.roundToInt().toString()+"º"
                             locationTipus.text = missatgeText
-                            missatgeText = "El punt està a:" + distanciaPunt + "m"
+                            missatgeText = distanciaPunt.roundToInt().toString() + "m"
                             distanciaTxt.text = missatgeText
                         }
                     }
@@ -188,11 +191,11 @@ class MainActivity : AppCompatActivity() {
                 comprovarDistancia(distanciaPunt)
                 var anglePunt = calcularAngle(lastLocation, desti)
                 val locationTipus = findViewById<TextView>(R.id.locationTipus)
-                var missatgeText = anglePunt.toString()+"º"
+                var missatgeText = anglePunt.roundToInt().toString()+"º"
                 locationTipus.text = missatgeText
-                missatgeText = "El punt està a:" + distanciaPunt + "m"
+                missatgeText = distanciaPunt.roundToInt().toString() + "m"
                 distanciaTxt.text = missatgeText
-                missatgeText = "Les teves cordenades son: \n Latitud:" + lastLocation.lat + "; Longitud:" + lastLocation.lon + "; Altitud:" + lastLocation.altura
+                missatgeText = "Latitud:" + lastLocation.lat + "\n Longitud:" + lastLocation.lon + "\n Altitud:" + lastLocation.altura
                 localitzacioTxt.text = missatgeText
             }
 
@@ -266,12 +269,12 @@ class MainActivity : AppCompatActivity() {
     fun carregarTrack() {
         val doc = obrirFitxer("myGpx.gpx")
         val recorregutTrack = calcularDistanciaTrack(doc)
-        val distanciaRecorreguda: TextView = findViewById(R.id.distanciaRecorreguda) as TextView
+        //val distanciaRecorreguda: TextView = findViewById(R.id.distanciaRecorreguda) as TextView
 
         val nList = doc.getElementsByTagName("trkpt")
         val eTrack = doc.getElementsByTagName("metadata").item(0) as Element
         val lenPoints = getPunts(nList)
-        distanciaRecorreguda.text = recorregutTrack.toString()
+        //distanciaRecorreguda.text = recorregutTrack.toString()
         //extrec el numero de punts i els emagatzema a la llista
         for (i in 0 until nList.getLength() step lenPoints!!) {
             if (nList.item(0).getNodeType().equals(Node.ELEMENT_NODE) ) {
