@@ -2,14 +2,22 @@ package com.oriolrg.orientatrack
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import android.view.animation.Animation
+import android.view.animation.RotateAnimation
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
@@ -23,10 +31,11 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
 import kotlin.math.roundToInt
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SensorEventListener {
     private var trkDataHashMap = HashMap< String, String>()
     private var trkList: ArrayList< HashMap< String, String>> = ArrayList()
     private var mylist : MutableList<LocalitzacioData.Track>? = null
+
     //Variables posicio temps real
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     var desti = LocalitzacioData.Point( 42.13708, 1.58497)
@@ -38,9 +47,21 @@ class MainActivity : AppCompatActivity() {
     //Si la ruta esta finalitzata = true
     private var ESTAT_RUTA = false
     val df = DecimalFormat("#.##")
+    // define the display assembly compass picture
+    private var image: ImageView? = null
+
+    // record the compass picture angle turned
+    private var currentDegree = 0f
+
+    // device sensor manager
+    private var mSensorManager: SensorManager? = null
+
+    var tvHeading: TextView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        getSupportActionBar()?.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar()?.setCustomView(R.layout.custom_toolbar);
         try {
             //carrega el track sobre el que es treballa a trkList: ArrayList
             carregarTrack()
@@ -50,6 +71,15 @@ class MainActivity : AppCompatActivity() {
 
             carregarPuntDesti()
             ActivityResultContracts.RequestPermission()
+            // our compass image
+            image = findViewById<ImageView>(R.id.imageViewCompass);
+
+            // TextView that will tell the user what degree is he heading
+            tvHeading = findViewById<TextView>(R.id.tvHeading);
+
+            // initialize your android device sensor capabilities
+            mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager;
+
             if (!ESTAT_RUTA){
                 getLastLocation()
                 NewLocationData()
@@ -110,7 +140,7 @@ class MainActivity : AppCompatActivity() {
      *  Funcio que ens permet obtenir l'ultima posicio
      */
     fun getLastLocation(){
-        val LocalitzacioTxt = findViewById<TextView>(R.id.LocalitzacioTxt)
+        //val LocalitzacioTxt = findViewById<TextView>(R.id.LocalitzacioTxt)
         if(isLocationEnabled()){
             if (ActivityCompat.checkSelfPermission(
                     this,
@@ -135,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                             var localitzacio = LocalitzacioData.Point(location.latitude,location.longitude)
                             val distanciaTxt = findViewById<TextView>(R.id.DistanciaTxt)
                             var missatgeText = "Latitud:" + location.latitude + "\n Longitud:" + location.longitude + "\n Altitud:" + location.altitude
-                            LocalitzacioTxt.text = missatgeText
+                            //LocalitzacioTxt.text = currentDegree.toString()
                             var distanciaPunt = calcularDistanciaEntreCoordenades(localitzacio, desti)
                             //Todo si distancia es menor a x seguent punt
                             comprovarDistancia(distanciaPunt)
@@ -183,7 +213,7 @@ class MainActivity : AppCompatActivity() {
     private val locationCallback = object : LocationCallback(){
         override fun onLocationResult(locationResult: LocationResult) {
             if (!ESTAT_RUTA){
-                val localitzacioTxt = findViewById<TextView>(R.id.LocalitzacioTxt)
+                //val localitzacioTxt = findViewById<TextView>(R.id.LocalitzacioTxt)
                 val distanciaTxt = findViewById<TextView>(R.id.DistanciaTxt)
                 var lastLocation = LocalitzacioData.Point(locationResult.lastLocation.latitude,locationResult.lastLocation.longitude)
                 lastLocation.altura = locationResult.lastLocation.altitude
@@ -196,7 +226,7 @@ class MainActivity : AppCompatActivity() {
                 missatgeText = distanciaPunt.roundToInt().toString() + "m"
                 distanciaTxt.text = missatgeText
                 missatgeText = "Latitud:" + lastLocation.lat + "\n Longitud:" + lastLocation.lon + "\n Altitud:" + lastLocation.altura
-                localitzacioTxt.text = missatgeText
+                //localitzacioTxt.text = currentDegree.toString()
             }
 
         }
@@ -319,5 +349,48 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return ""
+    }
+    override fun onResume() {
+        super.onResume()
+
+        // for the system's orientation sensor registered listeners
+        mSensorManager!!.registerListener(
+            this, mSensorManager!!.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+            SensorManager.SENSOR_DELAY_GAME
+        )
+    }
+    override fun onPause() {
+        super.onPause()
+
+        // to stop the listener and save battery
+        mSensorManager!!.unregisterListener(this)
+    }
+    override fun onSensorChanged(event: SensorEvent) {
+
+        // get the angle around the z-axis rotated
+        val degree = Math.round(event.values[0]).toFloat()
+        tvHeading!!.text = java.lang.Integer.toString(degree.toInt()) + "º"
+
+        // create a rotation animation (reverse turn degree degrees)
+        val ra = RotateAnimation(
+            currentDegree,
+            -degree,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+
+        // how long the animation will take place
+        ra.duration = 210
+
+        // set the animation after the end of the reservation status
+        ra.fillAfter = true
+
+        // Start the animation
+        image!!.startAnimation(ra)
+        currentDegree = -degree
+    }
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // not in use
     }
 }

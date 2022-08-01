@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Orientatrack</string>
+    <string name="not_available" />
+    <string name="stop_notifications" />
+    <string name="heading_0_0">Graus: 0.0</string>
+    <string name="distancia">Distancia proxim punt:</string>
+    <string name="graus">Graus</string>
+    <string name="direccio">Direcció proxim punt:</string>
 </resources>
